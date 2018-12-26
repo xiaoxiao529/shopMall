@@ -1,6 +1,6 @@
 <template>
-	<li class="nav-cart">
-		<a href="javascript:;" @mouseenter="showCarHandle()" @mouseleave="hideCarHandle()">购物车</a>
+	<li class="nav-cart" @mouseenter="showCarHandle()" @mouseleave="hideCarHandle()">  <!--移入移出加在li上面-->
+		<a href="javascript:;" >购物车</a>
 		<!--根据class改变颜色-->
 		<span class="cart-empty-num" :class="{'cart-num':totalCount}" >
 			<i>{{totalCount}}</i>
@@ -43,7 +43,7 @@
 						<p>共 <strong class="ng-binding">{{totalCount}}</strong> 件商品</p>
 						<h5>合计：<span class="price-icon">¥</span><span class="price-num ng-binding" ng-bind="cartMenu.totalPrice">{{totalMoney}}</span></h5>
 						<h6>
-							<a ng-href="http://www.smartisan.com/shop/#/cart" class="nav-cart-btn" href="http://www.smartisan.com/shop/#/cart">去购物车</a>
+							<router-link  class="nav-cart-btn" to="/paycart">去购物车</router-link>
 						</h6>
 					</div>
 				</div>
@@ -56,6 +56,7 @@
 export default{
 	data(){
 		return {
+			iTimer:null
 		}
 	},
 	computed:{  //state里面的数据和getters里面的方法写在这里面
@@ -77,10 +78,14 @@ export default{
 			this.$store.commit('deleteFromCar',item);
 		},
 		showCarHandle(){
+			clearTimeout(this.iTimer)
 			this.$store.commit('showCar');
 		},
 		hideCarHandle(){
-			this.$store.commit('hideCar');
+			//this.$store.commit('hideCar');
+			this.iTimer = setTimeout(()=>{
+	          this.$store.commit('hideCar')
+	        },500)
 		}
 	}
 }

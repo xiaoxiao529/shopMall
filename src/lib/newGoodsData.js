@@ -1,4 +1,5 @@
-let goodsData = [{
+let goodsData = [
+{
   "id": 1000271,
   "name": "坚果 Pro 软胶保护套",
   "name_title": "TPU 环保材质、耐磨、耐油、耐久性强",
@@ -14,7 +15,7 @@ let goodsData = [{
       "image": "attr/v2/1000271/948F029DCF134EF23267994487994DA5/",
       "show_name": "红色"
     }
-  },{
+},{
     "sku_id": 100027102,
     "title": "坚果 Pro 软胶保护套",
     "sub_title": "TPU 环保材质、耐磨、耐油、耐久性强",

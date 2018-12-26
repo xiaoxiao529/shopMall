@@ -15,7 +15,9 @@
 				</ul>
 			</div>
 			<div class="item-btns clearfix">
-				<span class="item-gray-btn"><a href="javascript:;" target="_blank">查看详情</a></span>
+				<span class="item-gray-btn">
+					<router-link :to="{path:'detail',query:{itemId:item.sku_info[itemIndex].sku_id}}">查看详情</router-link>
+				</span>
 				<span class="item-blue-btn" @click="addToCarHandle(item.sku_info[itemIndex])">加入购物车 </span>
 			</div>
 			<div class="item-price clearfix">
@@ -34,7 +36,7 @@ export default{
 	props:['item'],
 	data(){
 		return {
-			itemIndex:0
+			itemIndex:0  //默认是第一个小数据
 		}
 	},
 	computed:{
@@ -45,7 +47,8 @@ export default{
 			this.itemIndex = index;
 		},
 		addToCarHandle(sku_info){
-			this.$store.commit('addToCar',sku_info)
+			let carGoodData = {info:sku_info,addCount:1};  //addCount这个不是最终的数量，而是点击加号产生的数量，最终是要加到sku_info对象里面的count属性上的，二者不是一个东西
+			this.$store.commit('addToCar',carGoodData)
 		}
 	}
 	
