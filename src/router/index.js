@@ -4,6 +4,7 @@ import Shop from '@/views/Shop'
 import GoodsDetail from '@/views/GoodsDetail'
 import PayCart from '@/views/PayCart'
 import CheckOut from '@/views/CheckOut'
+import Payment from '@/components/Payment'
 Vue.use(Router)
 
 export default new Router({
@@ -28,6 +29,11 @@ export default new Router({
     	path:'/checkout',
     	name:'CheckOut',
     	component:CheckOut
+    },
+    {
+    	path:'/payment',
+    	name:'Payment',
+    	component:Payment
     }
   ]
 })

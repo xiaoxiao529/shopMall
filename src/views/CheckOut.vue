@@ -6,21 +6,21 @@
 					<div class="title columns-title pre-title">
 						<h2>收货信息</h2>
 					</div>
-					<div class="box-inner js-checkout-address-panel ">
+					<div class="box-inner js-checkout-address-panel">
 						<div class="address-common-table js-multiple-address-panel">
 							<ul class="address-item-list clear js-address-item-list">
-								<li class="js-choose-address  selected-address-item">
+								<li class="js-choose-address" @click="changeSelect(index)" :class="{'selected-address-item':index==addressCheckedIndex}" v-for="(item,index) in addressData">
 									<div class="address-item">
-										<div class="name-section">  王某某  </div>
-										<div class="mobile-section">13810000000</div>
-										<div class="detail-section"> 北京市 市辖区 海淀区<br> 上地十街辉煌国际大商西6号楼319室 </div>
+										<div class="name-section">  {{item.name}}  </div>
+										<div class="mobile-section">{{item.phone}}</div>
+										<div class="detail-section"> {{item.province}} {{item.city}} {{item.county}}<br> {{item.add}} </div>
 									</div>
 									<div class="operation-section">
 										<span class="update-btn js-edit-address">修改</span>
 										<span class="delete-btn js-delete-address">删除</span>
 									</div>
 								</li>
-								<li class="add-address-item js-add-address">
+								<li class="add-address-item js-add-address" @click="showPop()">
 									<p>使用新地址</p>
 								</li>
 							</ul>
@@ -38,17 +38,18 @@
 						<div class="radio-box"> 
 							<label> 
 								<input type="radio" class="hide"> 
-								<span class="blue-radio blue-radio-on"><a></a></span>  个人
+								<span class="blue-radio" :class="{'blue-radio-on':invoiceObj.selectInvoice}" @click="selectInvoiceHandle(true)"><a></a></span>  个人
 							</label> 
 							<label> 
 								<input type="radio" class="hide"> 
-								<span class="blue-radio"><a></a></span>  单位
+								<span class="blue-radio" :class="{'blue-radio-on':!invoiceObj.selectInvoice}" @click="selectInvoiceHandle(false)"><a></a></span>  单位
 							</label> 
 						</div> 
-						<div class="module-form-row form-item fn-hide js-invoice-title"> 
+						<div class="module-form-row form-item fn-hide js-invoice-title" v-if="!invoiceObj.selectInvoice"> 
 							<div class="module-form-item-wrapper no-icon small-item"> 
-								<i>请填写公司发票抬头</i> 
-								<input type="text" class="js-verify"> 
+								<i v-if="!invoiceObj.name">请填写公司发票抬头</i> 
+								<input type="text" class="js-verify" v-model="invoiceObj.name"> 
+								<div class="verify-error" v-show="!invoiceObj.name">必填</div>
 							</div> 
 						</div> 
 					</div> 
@@ -100,22 +101,42 @@
 				<div class="box-inner"> 
 					<div class="last-payment clear"> 
 						<span class="jianguo-blue-main-btn big-main-btn payment-blue-bt fn-right js-checkout">
-							<a>提交订单</a> 
+							<a @click="submitOrderHandle()">提交订单</a> 
 						</span> 
 						<span class="prices fn-right">应付金额： <em>¥ {{totalCheckedPrice+freight}}.00</em></span> 
 					</div> 
 				</div>
 			</div>
 		</div>
+		<address-pop v-if="addressPopShow" @closePop="closePop()"></address-pop>
 	</div>
+	
 </template>
 
 <script>
+import AddressPop from '@/components/AddressPop'
+
 export default{
 	data(){
 		return {
+			addressPopShow:false,
+			addressCheckedIndex:0,  
+			//这里只能初始化默认选中的是第几个，不能直接渲染到页面中，
+			//还必须结合数据来，在created里面进行赋值看看到底是第几个是选中的，如果一个都没有默认选中这个属性，默认就是0，即第0个地址默认选中
+			invoiceObj:{
+				selectInvoice:true,
+				name:''
+			}
 			
 		}
+	},
+	created(){
+		this.$store.state.addressData.forEach((item,index)=>{  //看看第几个地址是选中的
+			if(item.default){
+				this.addressCheckedIndex = index;
+				return
+			}
+		})
 	},
 	computed:{  //这里只能拿选中的商品数据过来，不是把购物车商品全部拿过来
 		checkedGoods(){
@@ -130,6 +151,68 @@ export default{
 				freight = 0;
 			}
 			return freight;
+		},
+		addressData(){
+			return this.$store.state.addressData
+		}
+	},
+	components:{
+		AddressPop
+	},
+	methods:{
+		closePop(){
+			this.addressPopShow = false;
+			this.$store.state.addressData.forEach((item,index)=>{  //看看第几个地址是选中的
+				if(item.default){
+					this.addressCheckedIndex = index;
+					return
+				}
+			})
+		},
+		showPop(){
+			this.addressPopShow = true;
+		},
+		changeSelect(index){  //点击选择地址，索引与定义的addressCheckedIndex一致才选中
+			this.addressCheckedIndex = index
+		},
+		selectInvoiceHandle(bool){
+			this.invoiceObj.selectInvoice = bool
+		},
+		submitOrderHandle(){
+			//1判断发票抬头填写了没有，个人还是公司
+			if( !this.invoiceObj.selectInvoice && !this.invoiceObj.name){ //说明选的是公司并且没有填写公司名称
+				alert('请填写单位名称！')
+				return
+			}
+			let customAddress =  this.addressData[this.addressCheckedIndex]  //收货地址，选中哪个就是哪个
+			let invoiceTitle = '';
+			if(this.invoiceObj.selectInvoice){  //说明选的是个人
+				invoiceTitle = '个人'
+			}else{
+				invoiceTitle = this.invoiceObj.name
+			}
+			let iDate = new Date();
+			let iYear = iDate.getFullYear();
+			let iMonth = iDate.getMonth()+1;
+			let iDay = iDate.getDate();
+			if( iMonth <=9 ){
+				iMonth = '0'+ iMonth;
+			}
+			if( iDay <=9 ){
+				iDay = '0'+ iDay;
+			}
+			let iData = {  //
+				orderId:new Date().getTime(), //商品id
+				goodsData:this.checkedGoods,  //要购买的商品=购物车里面已经勾选上的商品
+				invoiceTitle:invoiceTitle,  //个人还是公司购买
+				price:this.totalCheckedPrice,  //商品总价格
+				freight:this.freight,  //运费
+				customAddress:customAddress,  //买家地址
+				iDate:iYear+'-'+iMonth+'-'+iDay,
+				isPay: false
+			}
+			this.$store.commit('submitOrder',iData)
+			this.$router.push({path:'payment',query:{orderId:iData.orderId}})  //query的属性值是一个对象，有键值对
 		}
 	}
 }
@@ -601,7 +684,7 @@ export default{
   display: block;
   position: absolute;
   right: 6px;
-  top: 4px;
+  top: 10px;
   z-index: 5;
   padding: 0 9px;
   border-radius: 5px;
@@ -611,5 +694,8 @@ export default{
   color: #fff;
   background: #E66157;
   opacity: 1;
+}
+.invoice-box .verify-error{
+	top: 4px;
 }
 </style>

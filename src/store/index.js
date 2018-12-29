@@ -11,6 +11,34 @@ let store = new Vuex.Store({
 		ifMaxBuyNumber:false,  //是否到达最大购买数量，从而显示弹框与否
 		ifShowCar:false,  //默认不显示购物车
 		carTimer:null,
+		addressData:[{
+		  "name": "王某某",
+		  "phone": "13811111111",
+		  "areaCode": "010",
+		  "landLine": "64627856",
+		  "provinceId": 110000,
+		  "province": "北京市",
+		  "cityId": 110100,
+		  "city": "市辖区",
+		  "countyId": 110106,
+		  "county": "海淀区",
+		  "add": "上地十街辉煌国际西6号楼319室",
+		  "default": true
+		}, {
+		  "name": "李某某",
+		  "phone": "13811111111",
+		  "areaCode": "010",
+		  "landLine": "64627856",
+		  "provinceId": 110000,
+		  "province": "北京市",
+		  "cityId": 110100,
+		  "city": "市辖区",
+		  "countyId": 110106,
+		  "county": "海淀区",
+		  "add": "上地十街辉煌国际东6号楼350室",
+		  "default": false
+		}],
+		orderData:[]  //最终的商品，即购物车里面选中的提交成功的商品
 	},
 	getters:{  //计算属性，涉及到计算的都在这里面
 		totalCount(state){
@@ -162,6 +190,24 @@ let store = new Vuex.Store({
 					state.shopCarData.splice(index,1)
 				}
 			})*/
+		},
+		addCustomInfo(state,payload){
+			if(payload.default){
+				state.addressData.forEach((item)=>{
+					item.default = false;
+				})
+			}
+			state.addressData.push(payload)
+		},
+		submitOrder(state,payload){
+			state.orderData.unshift(payload)  //将数据插入到最前面，最后插入的是最新的
+			//然后从购物车删除已经提交成功的商品，即选中的商品
+			let i = state.shopCarData.length;
+			while(i--){
+				if(state.shopCarData[i].checked){  //选中的商品移除，从后往前筛选
+					state.shopCarData.splice(i,1)	
+				}
+			}
 		}
 	}
 })
