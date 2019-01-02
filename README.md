@@ -1,6 +1,6 @@
 # smartisan-web
 
-> A Vue.js project
+> 一个在线购物商城，用到的知识点包括：Vue、Vuex、Vue-router、Vue-cli、Axios、原生javascript
 
 ## Build Setup
 
