@@ -14,7 +14,7 @@
 				<div class="full" v-else>
 					<div class="nav-cart-items">
 						<ul>
-							<li class="clear" v-for="item in shopCarData">
+							<li class="clear" :key="index" v-for="(item,index) in shopCarData">
 								<div class="cart-item js-cart-item cart-item-sell">
 									<div class="cart-item-inner">
 										<div class="item-thumb">
